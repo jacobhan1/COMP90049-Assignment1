@@ -1,7 +1,7 @@
 This README describes the data files for COMP90049 2019S2, Project 1. 
 This archive contains six files, of which the dictionary, candidate, and blend files
 form the central data sources for this Project, although you may be interested in the
-other files in some circumstances. These file present in this archive are described in
+other files in some circumstances. The files present in this archive are described in
 more detail below.
 
 
@@ -37,7 +37,7 @@ more detail below.
     component word, newline.
     Note that some of the blends do not appear in the candidates list, because they have
     been excluded in the preprocessing stage. You might be interested to try out other
-    preprocessing strategies instead.
+    preprocessing strategies on the full tweets instead.
     Note that some of the tokens in the tweets may be blends that are not listed in
     blends.txt; we make no guarantees that this file represents an exhaustive list,
     only that these tokens have indeed been identified as blends.
