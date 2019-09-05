@@ -12,6 +12,7 @@ import time
 import pyjarowinkler as jw
 
 
+
 def has_many_duplicate(word):
     #return true if word has a sequence of
     #more than 2 consecutive identical letters and flase otherwise
@@ -80,24 +81,40 @@ def process_date():
 
     return candidate, dic, blend
 
-def predict_blends(test_list, dic_list, method):
-    prefix = []
+
+def predict_blends(test_list, dic_list):
     result = []
+    count = 0
+    recount = 0
     for t in test_list:
         for d in dic_list:
-            if len(longest_common_prefix(t,d)) >= 2:
+            if len(longest_common_prefix(t, d)) >= 2:
                 if ngram_test(t, d, 2) > 0.3:
-                    prefix.append(t)
-                    break
-    for s in prefix:
-        for d in dic_list:
-            if len(longest_common_suffix(s,d)) >= 2:
-                if ngram_test(s, d, 2) > 0.3:
-                    result.append(s)
-                    break
+                    count = count + 1
+            elif len(longest_common_suffix(t, d)) >= 2:
+                if ngram_test(t, d, 2) > 0.3:
+                    recount = recount + 1
+
+            if count > 0 and recount > 0:
+                result.append(t)
+                break
+        count = 0
+        recount = 0
+
     return result
+
+
+def calculate_result(result, blends):
+    count = 0
+    for word in result:
+        if word in blends:
+            count = count + 1
+    return count / len(result)
 
 
 candidate, dic, blends = process_date()
 clean_candidate, clean_dic = clean_data_set(candidate, dic)
-print(predict_blends(clean_candidate, clean_dic, ""))
+
+
+result = predict_blends(clean_candidate, clean_dic)
+print(calculate_result(result, blends))
