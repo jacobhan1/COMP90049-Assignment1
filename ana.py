@@ -9,7 +9,8 @@ from functools import partial
 from ngram import NGram
 import distance
 import time
-import pyjarowinkler as jw
+import pyjarowinkler
+from pyjarowinkler import distance
 
 
 
@@ -82,17 +83,39 @@ def process_date():
     return candidate, dic, blend
 
 
-def predict_blends(test_list, dic_list):
+def predict_blends_global(test_list, dic_list):
     result = []
     count = 0
     recount = 0
     for t in test_list:
         for d in dic_list:
             if len(longest_common_prefix(t, d)) >= 2:
-                if ngram_test(t, d, 2) > 0.3:
+                if distance.get_jaro_distance(t, d) >= 0.5:
                     count = count + 1
             elif len(longest_common_suffix(t, d)) >= 2:
-                if ngram_test(t, d, 2) > 0.3:
+                if distance.get_jaro_distance(t, d) >= 0.5:
+                    recount = recount + 1
+
+            if count > 0 and recount > 0:
+                result.append(t)
+                break
+        count = 0
+        recount = 0
+
+    return result
+
+
+def predict_blends_ngram(test_list, dic_list, n):
+    result = []
+    count = 0
+    recount = 0
+    for t in test_list:
+        for d in dic_list:
+            if len(longest_common_prefix(t, d)) >= 2:
+                if ngram_test(t, d, n) > 0.3:
+                    count = count + 1
+            elif len(longest_common_suffix(t, d)) >= 2:
+                if ngram_test(t, d, n) > 0.3:
                     recount = recount + 1
 
             if count > 0 and recount > 0:
@@ -116,5 +139,5 @@ candidate, dic, blends = process_date()
 clean_candidate, clean_dic = clean_data_set(candidate, dic)
 
 
-result = predict_blends(clean_candidate, clean_dic)
+result = predict_blends_global(clean_candidate, clean_dic)
 print(calculate_result(result, blends))
