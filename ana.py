@@ -1,6 +1,7 @@
 import cProfile
 import pickle
 import re
+import nltk
 import editdistance as ed
 # Levenshtein/global edit distance, sourced from github.com/aflc/editdistance
 import os.path
@@ -25,6 +26,14 @@ def has_many_duplicate(word):
     # return true if word has a sequence of
     # more than 2 consecutive identical letters and flase otherwise
     return re.search("([a-zA-Z])\\1{2,}", word)
+
+
+# For nox suffixes are common inflectional suffixes for nouns and verbs
+suffixes = ['s', 'ed', 'ing', 'en', 'ed']
+
+
+def is_morpho_suffix(s):
+    return s in suffixes
 
 
 def longest_common_prefix(w1, w2):
@@ -95,13 +104,14 @@ def predict_blends_global(test_list, dic_list):
     count = 0
     recount = 0
     for t in test_list:
+        word_stem = stemmer.stem(t)
         for d in dic_list:
-            if t[0] == d[0]:
-                if distance.get_jaro_distance(t, d, winkler=True, scaling=0.1) > 0.9\
+            if len(longest_common_prefix(t, d)) >= 2 and word_stem == stemmer.stem(d):
+                if distance.get_jaro_distance(t, d, winkler=True, scaling=0.1) > 0.8\
                         and ed.eval(t, d) > 1:
                     count = count + 1
-            elif t[-1] == d[-1]:
-                if distance.get_jaro_distance(t, d, winkler=True, scaling=0.1) > 0.9\
+            elif len(longest_common_suffix(t, d)) >= 2:
+                if distance.get_jaro_distance(t, d, winkler=True, scaling=0.1) > 0.8\
                         and ed.eval(t, d) > 1:
                     recount = recount + 1
 
@@ -120,13 +130,17 @@ def predict_blends_ngram(test_list, dic_list, n):
     count = 0
     recount = 0
     for t in test_list:
+        word_stem = stemmer.stem(t)
         for d in dic_list:
-            if t[0] == d[0]:
+            if len(longest_common_prefix(t, d)) >= 2 and word_stem == stemmer.stem(d):
                 if ngram_test(t, d, n) > 0.5 and ed.eval(t, d) > 1:
                     count = count + 1
-            elif t[-1] == d[-1]:
-                if ngram_test(t, d, n) > 0.5 and ed.eval(t, d) > 1:
-                    recount = recount + 1
+            elif len(longest_common_suffix(t, d)) >= 2:
+                if is_morpho_suffix(longest_common_suffix(t, d)):
+                    break
+                else:
+                    if ngram_test(t, d, n) > 0.5 and ed.eval(t, d) > 1:
+                        recount = recount + 1
 
             if count > 0 and recount > 0:
                 result.append(t)
@@ -140,23 +154,35 @@ def predict_blends_ngram(test_list, dic_list, n):
 # calculate the result from the real blend words txt
 def calculate_result(result, blends):
     count = 0
+    true_blend = 0
+    for c in clean_candidate:
+        if c in blends:
+            true_blend += 1
     for word in result:
         if word in blends:
             count = count + 1
-    return count / len(result)
+    recall = count / true_blend
+    precision = count / len(result)
+    return recall, precision
 
 
+
+stemmer = nltk.stem.PorterStemmer()
 candidate, dic, blends = process_date()
 clean_candidate, clean_dic = clean_data_set(candidate, dic)
 
 
-#result = predict_blends_global(clean_candidate, clean_dic)
-result1 = predict_blends_ngram(clean_candidate, clean_dic, 3)
-#print(result)
-print(result1)
-#print(calculate_result(result, blends))
-print(calculate_result(result1, blends))
+result = predict_blends_global(clean_candidate, clean_dic)
+#result1 = predict_blends_ngram(clean_candidate, clean_dic, 3)
+print(result)
+#print(result1)
+print(calculate_result(result, blends))
+#print(calculate_result(result1, blends))
 
 
 # ngram > 0.5  0.0135  3gram > 0.5 0.01
 # jw > 0.7 0.011 >0.8 0.0114 > 0.9  0.01224
+
+
+# 改进后： 2gram > 0.5 0.0324
+# jav-wiklot > 0.7  0.02411  : 539
