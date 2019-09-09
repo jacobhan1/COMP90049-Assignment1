@@ -133,13 +133,13 @@ def predict_blends_ngram(test_list, dic_list, n):
         word_stem = stemmer.stem(t)
         for d in dic_list:
             if len(longest_common_prefix(t, d)) >= 2 and word_stem == stemmer.stem(d):
-                if ngram_test(t, d, n) > 0.5 and ed.eval(t, d) > 1:
+                if ngram_test(t, d, n) > 0.3 and ed.eval(t, d) > 1:
                     count = count + 1
             elif len(longest_common_suffix(t, d)) >= 2:
                 if is_morpho_suffix(longest_common_suffix(t, d)):
                     break
                 else:
-                    if ngram_test(t, d, n) > 0.5 and ed.eval(t, d) > 1:
+                    if ngram_test(t, d, n) > 0.3 and ed.eval(t, d) > 1:
                         recount = recount + 1
 
             if count > 0 and recount > 0:
@@ -172,17 +172,18 @@ candidate, dic, blends = process_date()
 clean_candidate, clean_dic = clean_data_set(candidate, dic)
 
 
-result = predict_blends_global(clean_candidate, clean_dic)
-#result1 = predict_blends_ngram(clean_candidate, clean_dic, 3)
-print(result)
-#print(result1)
-print(calculate_result(result, blends))
-#print(calculate_result(result1, blends))
+#result = predict_blends_global(clean_candidate, clean_dic)
+result1 = predict_blends_ngram(clean_candidate, clean_dic, 3)
+#print(result)
+print(result1)
+#print(calculate_result(result, blends))
+print(calculate_result(result1, blends))
 
 
 # ngram > 0.5  0.0135  3gram > 0.5 0.01
 # jw > 0.7 0.011 >0.8 0.0114 > 0.9  0.01224
 
 
-# 改进后： 2gram > 0.5 0.0324
+# 改进后： 2gram > 0.5 0.0324  3gram > 0.3 recall: 12.9  precision: 3
 # jav-wiklot > 0.7  0.02411  : 539
+# > 0.8 0.0225 533
