@@ -71,7 +71,7 @@ def clean_data_set(candidate, dic):
     #
     for c in candidate:
         if not has_many_duplicate(c):
-            if len(c) > 5:
+            if len(c) > 4:
                 candidate_clean.append(c)
     # Restrictions on candidate blends:
     #
@@ -152,10 +152,10 @@ def predict_blends_ngram(test_list, dic_list, n):
 
 
 # calculate the result from the real blend words txt
-def calculate_result(result, blends):
+def calculate_result(result, blends, candidate):
     count = 0
     true_blend = 0
-    for c in clean_candidate:
+    for c in candidate:
         if c in blends:
             true_blend += 1
     for word in result:
@@ -172,18 +172,19 @@ candidate, dic, blends = process_date()
 clean_candidate, clean_dic = clean_data_set(candidate, dic)
 
 
+
 #result = predict_blends_global(clean_candidate, clean_dic)
-result1 = predict_blends_ngram(clean_candidate, clean_dic, 3)
+#result1 = predict_blends_ngram(clean_candidate, clean_dic, 3)
 #print(result)
-print(result1)
-#print(calculate_result(result, blends))
-print(calculate_result(result1, blends))
+#print(result1)
+#print(calculate_result(result, blends, candidate))
+#print(calculate_result(result1, blends, candidate))
 
 
 # ngram > 0.5  0.0135  3gram > 0.5 0.01
 # jw > 0.7 0.011 >0.8 0.0114 > 0.9  0.01224
 
 
-# 改进后： 2gram > 0.5 0.0324  3gram > 0.3 recall: 12.9  precision: 3
+# 改进后： 2gram > 0.5 0.0324  3gram > 0.3 recall: 12.90  precision: 3
 # jav-wiklot > 0.7  0.02411  : 539
 # > 0.8 0.0225 533
