@@ -17,8 +17,7 @@ from pyjarowinkler import distance
 @author: xhhan1@student.unimelb.edu.au
 Use different string match methods to interpret the candidate blend words.
 Evaluate the result from the real blend txt file.
-
-Please forgive me to duplicate some of these methods. 
+ 
 '''
 
 
@@ -98,32 +97,6 @@ def process_date():
     return candidate, dic, blend
 
 
-# Use jaro-winkler method to interpret the candidate blend words
-def predict_blends_global(test_list, dic_list):
-    result = []
-    count = 0
-    recount = 0
-    for t in test_list:
-        word_stem = stemmer.stem(t)
-        for d in dic_list:
-            if len(longest_common_prefix(t, d)) >= 2 and word_stem == stemmer.stem(d):
-                if distance.get_jaro_distance(t, d, winkler=True, scaling=0.1) > 0.8\
-                        and ed.eval(t, d) > 1:
-                    count = count + 1
-            elif len(longest_common_suffix(t, d)) >= 2:
-                if distance.get_jaro_distance(t, d, winkler=True, scaling=0.1) > 0.8\
-                        and ed.eval(t, d) > 1:
-                    recount = recount + 1
-
-            if count > 0 and recount > 0:
-                result.append(t)
-                break
-        count = 0
-        recount = 0
-
-    return result
-
-
 # Use ngram(2,3,4...) method to interpret the candidate blend words
 def predict_blends_ngram(test_list, dic_list, n):
     result = []
@@ -171,14 +144,12 @@ stemmer = nltk.stem.PorterStemmer()
 candidate, dic, blends = process_date()
 clean_candidate, clean_dic = clean_data_set(candidate, dic)
 
-
-
-#result = predict_blends_global(clean_candidate, clean_dic)
-#result1 = predict_blends_ngram(clean_candidate, clean_dic, 3)
-#print(result)
-#print(result1)
-#print(calculate_result(result, blends, candidate))
-#print(calculate_result(result1, blends, candidate))
+result = predict_blends_ngram(clean_candidate, clean_dic, 2)
+result1 = predict_blends_ngram(clean_candidate, clean_dic, 3)
+print(result)
+print(result1)
+print(calculate_result(result, blends, candidate))
+print(calculate_result(result1, blends, candidate))
 
 
 # ngram > 0.5  0.0135  3gram > 0.5 0.01
