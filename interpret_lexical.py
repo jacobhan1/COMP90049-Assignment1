@@ -97,7 +97,7 @@ def process_date():
     return candidate, dic, blend
 
 
-# Use ngram(2,3,4...) method to interpret the candidate blend words
+# Use ngram(2,3) method to interpret the candidate blend words
 def predict_blends_ngram(test_list, dic_list, n):
     result = []
     count = 0
@@ -145,17 +145,10 @@ candidate, dic, blends = process_date()
 clean_candidate, clean_dic = clean_data_set(candidate, dic)
 
 result = predict_blends_ngram(clean_candidate, clean_dic, 2)
-result1 = predict_blends_ngram(clean_candidate, clean_dic, 3)
+#result1 = predict_blends_ngram(clean_candidate, clean_dic, 3)
 print(result)
-print(result1)
+#print(result1)
 print(calculate_result(result, blends, candidate))
-print(calculate_result(result1, blends, candidate))
+#print(calculate_result(result1, blends, candidate))
 
 
-# ngram > 0.5  0.0135  3gram > 0.5 0.01
-# jw > 0.7 0.011 >0.8 0.0114 > 0.9  0.01224
-
-
-# 改进后： 2gram > 0.5 0.0324  3gram > 0.3 recall: 12.90  precision: 3
-# jav-wiklot > 0.7  0.02411  : 539
-# > 0.8 0.0225 533
